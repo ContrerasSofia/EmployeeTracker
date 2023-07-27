@@ -1,5 +1,7 @@
 var inquirer = require('inquirer');
 const ques = require('./Lib/questions.js');
+const query = require('./querys.js');
+const view = new query.View;
 
 function init() {
     inquirer
@@ -18,14 +20,23 @@ function validateData(response){
             console.log('Wrong shape type');
     }
 }
-module.exports = {
-    init
-};
-    
+
 function addMenu(){
     inquirer
         .prompt(ques.questions[1])
         .then((response) => { 
-            console.log(response);
+            
+            switch (response.view) {
+                case 'All employees':
+                    view.getEmployees();
+                    break
+                default:
+                    console.log('Wrong shape type');
+            }
         });
     }
+
+module.exports = {
+    init
+};
+        
