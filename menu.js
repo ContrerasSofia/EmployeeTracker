@@ -1,6 +1,6 @@
 var inquirer = require('inquirer');
 const ques = require('./Lib/questions.js');
-const query = require('./querys.js');
+const query = require('./Lib/querys.js');
 const view = new query.View;
 
 function init() {
@@ -29,7 +29,16 @@ function addMenu(){
             switch (response.view) {
                 case 'All employees':
                     view.getEmployees();
-                    break
+                    break;
+                case 'All roles':
+                    view.getRoles();
+                    break;
+                case 'All departments':
+                    view.getDepartments();
+                    break;
+                case 'The total utilized budget of a department':
+                    view.getBudget();
+                    break;
                 default:
                     console.log('Wrong shape type');
             }
