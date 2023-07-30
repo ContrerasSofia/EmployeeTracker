@@ -8,7 +8,7 @@ const questions = [
         'Delete', 
         'Update', 
         'View',
-        'Quit']
+        'Quit\n']
   },
   {
     type: 'list',

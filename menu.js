@@ -4,11 +4,12 @@ const query = require('./Lib/querys.js');
 const view = new query.View;
 
 function init() {
-    inquirer
+        inquirer
         .prompt(ques.questions[0])
         .then((response) => { 
             validateData(response);
         });
+    
 }
 
 function validateData(response){
@@ -16,8 +17,10 @@ function validateData(response){
         case 'View':
             addMenu();
             break;
+        case'Quit':     
         default:
-            console.log('Wrong shape type');
+            console.log('bye');
+            break;
     }
 }
 
@@ -28,7 +31,7 @@ function addMenu(){
             
             switch (response.view) {
                 case 'All employees':
-                    view.getEmployees();
+                    Promise.resolve(view.getEmployees()).then(() => init());
                     break;
                 case 'All roles':
                     view.getRoles();
@@ -42,7 +45,9 @@ function addMenu(){
                 default:
                     console.log('Wrong shape type');
             }
-        });
+        
+           
+        })
     }
 
 module.exports = {
