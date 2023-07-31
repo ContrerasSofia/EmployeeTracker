@@ -47,7 +47,7 @@ const questions = [
     message: 'What would you like to Delete?',
     name: 'delete',
     choices: 
-        ['Employe', 
+        ['Employee', 
         'Role', 
         'Departments',
         'Quit']

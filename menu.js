@@ -1,8 +1,9 @@
 var inquirer = require('inquirer');
 const ques = require('./Lib/questions.js');
 const query = require('./Lib/querys.js');
-const opt = require('./helpers/utils.js');
+const opt = require('./Lib/utils.js');
 const view = new query.View;
+const delt = new query.Delete;
 
 function init() {
         inquirer
@@ -18,7 +19,9 @@ function validateData(response){
         case 'View':
             addMenu();
             break;
-        case'Quit':     
+        case'Delete':
+            deleteMenu();
+            break;     
         default:
             console.log('bye');
             break;
@@ -57,6 +60,51 @@ function viewEmployeeByManager(){
     });
 }
 
+function deleteEmployee(){
+    return new Promise((resolve, reject)=>{
+        Promise.resolve(view.getEmployees()).then((value) =>{
+            Promise.resolve(opt.getOptions(value, 'employee')).then((question) =>{
+                inquirer
+                    .prompt(question)
+                    .then((response) => { 
+                        Promise.resolve(delt.deleteEmployeeRow(response.employee))
+                        .then(() => {return resolve()})
+                    });
+                });
+        }); 
+    });
+}
+
+function deleteRoles(){
+    return new Promise((resolve, reject)=>{
+        Promise.resolve(view.getRolesbyName()).then((value) =>{
+            Promise.resolve(opt.getOptions(value, 'role')).then((question) =>{
+                inquirer
+                    .prompt(question)
+                    .then((response) => { 
+                        Promise.resolve(delt.deleteRolesRow(response.role))
+                        .then(() => {return resolve()})
+                    });
+                });
+        }); 
+    });
+}
+
+function deleteDepartment(){
+    return new Promise((resolve, reject)=>{
+        Promise.resolve(view.getDepartments()).then((value) =>{
+            Promise.resolve(opt.getOptions(value, 'department')).then((question) =>{
+                inquirer
+                    .prompt(question)
+                    .then((response) => { 
+                        Promise.resolve(delt.deleteDepartmentRow(response.department))
+                        .then(() => {return resolve()})
+                    });
+                });
+        }); 
+    });
+}
+
 function addMenu(){
     inquirer
         .prompt(ques.questions[1])
@@ -64,10 +112,22 @@ function addMenu(){
             
             switch (response.view) {
                 case 'All employees':
-                    Promise.resolve(view.getEmployees()).then(() => init());
+                    Promise.resolve(view.getEmployees())
+                    .then((response) => 
+                        console.table(response)
+                    )
+                    .then(() =>
+                        init()
+                    );
                     break;
                 case 'All roles':
-                    Promise.resolve(view.getRoles()).then(() => init());
+                    Promise.resolve(view.getRoles())
+                    .then((response) => 
+                        console.table(response)
+                    )
+                    .then(() =>
+                        init()
+                    );
                     break;
                 case 'All departments':
                     Promise.resolve(view.getDepartments())
@@ -98,6 +158,39 @@ function addMenu(){
            
         })
     }
+
+function deleteMenu(){
+    inquirer
+    .prompt(ques.questions[4])
+        .then((response) => { 
+            switch (response.delete) {
+                case 'Employee':
+                    Promise.resolve(deleteEmployee())
+                    .then(() =>
+                        init()
+                    );
+                    break;
+                case 'Role':
+                    Promise.resolve(deleteRoles())
+                    .then(() =>
+                        init()
+                    );
+                    break;
+                case 'Departments':
+                    Promise.resolve(deleteDepartment())
+                    .then(() =>
+                        init()
+                    );
+                    break;
+                case'Quit':
+                    console.log('bye');
+                    break;
+                default:
+                    init();
+                    break;
+            }
+        })
+}
 
 module.exports = {
     init

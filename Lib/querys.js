@@ -1,6 +1,5 @@
 require('dotenv').config();
 const mysql = require('mysql2');
-
 const db = mysql.createConnection(
     {
       host: 'localhost',
@@ -14,24 +13,33 @@ const db = mysql.createConnection(
 class View {
     getEmployees(){
       return new Promise((resolve, reject)=>{
-        db.query('SELECT nt.FIRST_NAME, nt.LAST_NAME, nt.ROLE, nt.SALARY, CONCAT(e.firstName, " ", e.lastName) AS MANAGER FROM (SELECT em.id, em.firstName FIRST_NAME,  em.lastName LAST_NAME, rl.title ROLE, rl.salary SALARY, em.manager_id FROM roles rl INNER JOIN employees em ON em.role_id = rl.id) nt, EMPLOYEES e WHERE e.id = nt.manager_id',  (error, elements)=>{
+        db.query('SELECT CONCAT(nt.FIRST_NAME, " ",nt.LAST_NAME) NAME, nt.ROLE, nt.SALARY, CONCAT(e.firstName, " ", e.lastName) AS MANAGER FROM (SELECT em.id, em.firstName FIRST_NAME,  em.lastName LAST_NAME, rl.title ROLE, rl.salary SALARY, em.manager_id FROM roles rl INNER JOIN employees em ON em.role_id = rl.id) nt, EMPLOYEES e WHERE e.id = nt.manager_id',  (error, elements)=>{
             if(error){
                 return reject(error);
             }
-            console.table(elements);
             return resolve(elements);
-
         });
       }); 
     }
 
     getRoles(){
       return new Promise((resolve, reject)=>{
-        db.query('SELECT rl.title TITLE, rl.salary SALARY, dp.NAME DEPARTMENT FROM DEPARTMENTS dp INNER JOIN ROLES rl ON rl.department_id = dp.id',  (error, elements)=>{
+        db.query('SELECT rl.title NAME, rl.salary SALARY, dp.NAME DEPARTMENT FROM DEPARTMENTS dp INNER JOIN ROLES rl ON rl.department_id = dp.id',  (error, elements)=>{
             if(error){
                 return reject(error);
             }
-            console.table(elements);
+            return resolve(elements);
+
+        });
+      }); 
+    }
+
+    getRolesbyName(){
+      return new Promise((resolve, reject)=>{
+        db.query('SELECT rl.title NAME FROM ROLES rl GROUP BY rl.id',  (error, elements)=>{
+            if(error){
+                return reject(error);
+            }
             return resolve(elements);
 
         });
@@ -56,9 +64,7 @@ class View {
             if(error){
                 return reject(error);
             }
-            console.table(elements);
             return resolve(elements);
-
         });
       });
     }
@@ -97,11 +103,50 @@ class View {
     }
   }
 
-
-
+  const v = new View;
+class Delete {
   
+
+  deleteEmployeeRow(reference){
+    return new Promise((resolve, reject)=>{
+      db.query('DELETE FROM EMPLOYEES e WHERE CONCAT(e.firstName, " ", e.lastName) = ?', reference, (error, elements)=>{
+          if(error){
+              return reject(error);
+          }
+          console.log("Delete succsseful!!")
+          return resolve(elements);
+      });
+    });
+  }
+  
+  deleteRolesRow(reference){
+    return new Promise((resolve, reject)=>{
+      db.query('DELETE FROM ROLES WHERE title = ?', reference, (error, elements)=>{
+          if(error){
+              return reject(error);
+          }
+          console.log("Delete succsseful!!")
+          return resolve(elements);
+      });
+    });
+  }
+
+  deleteDepartmentRow(reference){
+    return new Promise((resolve, reject)=>{
+      db.query('DELETE FROM DEPARTMENTS WHERE name = ?', reference, (error, elements)=>{
+          if(error){
+              return reject(error);
+          }
+          console.log("Delete succsseful!!")
+          return resolve(elements);
+      });
+    });
+  }
+
+}
+
   
 
 module.exports = {
-    View
+    View, Delete
 };
