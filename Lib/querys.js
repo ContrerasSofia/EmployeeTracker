@@ -46,9 +46,42 @@ class View {
       }); 
     }
 
+    getDepartmentid(name){
+      return new Promise((resolve, reject)=>{
+        db.query('SELECT dp.id  FROM DEPARTMENTS dp WHERE name = ?;', name, (error, elements)=>{
+            if(error){
+                return reject(error);
+            }
+            return resolve(elements);
+        });
+      });
+    }
+
+    getRoleid(name){
+      return new Promise((resolve, reject)=>{
+        db.query('SELECT dp.id FROM ROLES dp WHERE title = ?;', name, (error, elements)=>{
+            if(error){
+                return reject(error);
+            }
+            return resolve(elements);
+        });
+      });
+    }
+
+    getManagerid(name){
+      return new Promise((resolve, reject)=>{
+        db.query('SELECT dp.id  FROM EMPLOYEES dp WHERE CONCAT(dp.firstName, " ", dp.lastName) = ?;', name, (error, elements)=>{
+            if(error){
+                return reject(error);
+            }
+            return resolve(elements);
+        });
+      });
+    }
+
     getDepartments(){
       return new Promise((resolve, reject)=>{
-        db.query('SELECT dp.name NAME FROM DEPARTMENTS dp;',  (error, elements)=>{
+        db.query('SELECT dp.name NAME, dp.id  FROM DEPARTMENTS dp;',  (error, elements)=>{
             if(error){
                 return reject(error);
             }
@@ -64,6 +97,7 @@ class View {
             if(error){
                 return reject(error);
             }
+            console.table(elements);
             return resolve(elements);
         });
       });
@@ -145,8 +179,63 @@ class Delete {
 
 }
 
-  
+class update{
+  employeeManager(employee, manager){
+    console.log(employee,manager);
+  }
+}  
 
+class Insert{
+
+  addDepartment(reference){
+    return new Promise((resolve, reject)=>{
+      db.query('INSERT INTO DEPARTMENTS (NAME) VALUES (?);', reference, (error, elements)=>{
+          if(error){
+              return reject(error);
+          }
+          console.log("Insertion succsseful!!")
+          return resolve(elements);
+      });
+    });
+  }
+
+  addEmployee(data, managers, role){
+    return new Promise((resolve, reject) => {
+      Promise.resolve( v.getManagerid(managers.manager))
+        .then((response1) => {
+          Promise.resolve( v.getRoleid(role.roles))
+          .then((response2) => {
+            db.query('INSERT INTO EMPLOYEES (firstName, lastName, role_id,  manager_id) VALUES (?,?,?, ?);',[data.firstName, data.lastName, response2[0].id, response1[0].id], (error, elements)=>{
+              if(error){
+                  return reject(error);
+              }
+              console.log("Insertion succsseful!!")
+              return resolve(elements);
+            });
+          })
+        })
+    })
+  }
+
+  addRole(data, name){
+    let v = new View;
+    return new Promise((resolve, reject)=>{
+      Promise.resolve( v.getDepartmentid(name.department))
+        .then((response) => {
+          db.query('INSERT INTO ROLES (title, salary, department_id) VALUES (?,?,?);',[data.title, data.salary, response[0].id], (error, elements)=>{
+            if(error){
+                return reject(error);
+            }
+            console.log("Insertion succsseful!!")
+            return resolve(elements);
+          });
+        })
+    }); 
+  }
+
+  insertRole(){}
+  insertDepartment(){}
+}
 module.exports = {
-    View, Delete
+    View, Delete, Insert
 };

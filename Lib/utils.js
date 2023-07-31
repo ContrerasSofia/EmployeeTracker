@@ -13,6 +13,16 @@ function getOptions(table, nameQ ){
       }); 
 }
 
+function inquirerOptions(question){
+    return new Promise((resolve, reject) => {
+        inquirer
+            .prompt(question)
+            .then((response) => { 
+                return resolve(response);
+            });
+    })
+}
+
 module.exports = {
-    getOptions
+    getOptions, inquirerOptions
 };

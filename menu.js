@@ -1,32 +1,38 @@
 var inquirer = require('inquirer');
 const ques = require('./Lib/questions.js');
+const addques = require('./Lib/addQuestions.js');
 const query = require('./Lib/querys.js');
 const opt = require('./Lib/utils.js');
+const { response } = require('express');
 const view = new query.View;
 const delt = new query.Delete;
+const insert = new query.Insert;
+
 
 function init() {
-        inquirer
+    inquirer
         .prompt(ques.questions[0])
         .then((response) => { 
-            validateData(response);
+            switch (response.main) {
+                case 'View':
+                    viewMenu();
+                    break;
+                case'Delete':
+                    deleteMenu();
+                    break;
+                case'Update':
+                    //updateMenu();
+                    break;
+                case'Add':
+                    addMenu();
+                    break;         
+                default:
+                    console.log('bye');
+                    break;
+            }
         });
-    
-}
+}   
 
-function validateData(response){
-    switch (response.main) {
-        case 'View':
-            addMenu();
-            break;
-        case'Delete':
-            deleteMenu();
-            break;     
-        default:
-            console.log('bye');
-            break;
-    }
-}
 
 function viewEmployeeByDepartmet(){
     return new Promise((resolve, reject)=>{
@@ -105,7 +111,7 @@ function deleteDepartment(){
     });
 }
 
-function addMenu(){
+function viewMenu(){
     inquirer
         .prompt(ques.questions[1])
         .then((response) => { 
@@ -187,6 +193,62 @@ function deleteMenu(){
                     break;
                 default:
                     init();
+                    break;
+            }
+        })
+}
+
+
+
+
+function addMenu(){
+    inquirer
+    .prompt(ques.questions[2])
+        .then((response) => { 
+            switch (response.add) {
+                case 'Employee':
+                    inquirer.prompt(addques.employee).then((response1) => {
+                        Promise.resolve(view.getManagers()).then((value) =>{
+                            Promise.resolve(opt.getOptions(value, 'manager')).then((question) =>{
+                                inquirer
+                                    .prompt(question)
+                                    .then((manager) => { 
+                                        Promise.resolve(view.getRoles()).then((value) =>{
+                                            Promise.resolve(opt.getOptions(value, 'roles')).then((question) =>{
+                                                inquirer
+                                                    .prompt(question)
+                                                    .then((roles) => { 
+                                                        Promise.resolve(insert.addEmployee(response1, manager, roles))
+                                                        .then(() => init())
+                                                    });
+                                                });
+                                        }); 
+                                    });
+                                });
+                        }); 
+                    })
+                    break;
+                case 'Role':
+                    inquirer.prompt(addques.role).then((response1) => {
+                        Promise.resolve(view.getDepartments()).then((value) =>{
+                            Promise.resolve(opt.getOptions(value, 'department')).then((question) =>{
+                                inquirer
+                                    .prompt(question)
+                                    .then((response2) => { 
+                                       Promise.resolve(insert.addRole(response1, response2))
+                                       .then(() => init())
+                                    });
+                                });
+                        }); 
+                    })
+                    break;
+                case 'Departments':
+                    inquirer.prompt(addques.department)
+                        .then((response) => insert.addDepartment(response.name))
+                        .then(() => init());
+                    break;
+                case'Quit':
+                    console.log('bye');
                     break;
             }
         })

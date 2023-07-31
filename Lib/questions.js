@@ -4,7 +4,7 @@ const questions = [
     message: 'What would you like to do?',
     name: 'main',
     choices: 
-        ['add', 
+        ['Add', 
         'Delete', 
         'Update', 
         'View',
@@ -28,7 +28,7 @@ const questions = [
     message: 'What would you like to Add?',
     name: 'add',
     choices: 
-        ['Employe', 
+        ['Employee', 
         'Role', 
         'Departments',
         'Quit']
@@ -38,7 +38,7 @@ const questions = [
     message: 'What would you like to Update?',
     name: 'update',
     choices: 
-        ['Employee managers', 
+        ['Employee manager', 
         'Employee role',
         'Quit']
   },
