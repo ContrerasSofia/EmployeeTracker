@@ -20,7 +20,7 @@ const questions = [
         'All departments', 
         'The total utilized budget of a department',
         'View employees by department',
-        'View employees by manager.',
+        'View employees by manager',
         'Quit']
   },
   {

@@ -26,24 +26,80 @@ class View {
     }
 
     getRoles(){
-      const sql = 'SELECT rl.title TITLE, rl.salary SALARY, dp.NAME DEPARTMENT FROM DEPARTMENTS dp INNER JOIN ROLES rl ON rl.department_id = dp.id'
-      db.query(sql, function (err, results) {
-        console.table(results);
-      });
+      return new Promise((resolve, reject)=>{
+        db.query('SELECT rl.title TITLE, rl.salary SALARY, dp.NAME DEPARTMENT FROM DEPARTMENTS dp INNER JOIN ROLES rl ON rl.department_id = dp.id',  (error, elements)=>{
+            if(error){
+                return reject(error);
+            }
+            console.table(elements);
+            return resolve(elements);
+
+        });
+      }); 
     }
+
     getDepartments(){
-      const sql = 'SELECT dp.name NAME FROM DEPARTMENTS dp;'
-      db.query(sql, function (err, results) {
-        console.table(results);
+      return new Promise((resolve, reject)=>{
+        db.query('SELECT dp.name NAME FROM DEPARTMENTS dp;',  (error, elements)=>{
+            if(error){
+                return reject(error);
+            }
+            return resolve(elements);
+
+        });
       });
     }
+
     getBudget(){
-      const sql = 'SELECT dp.name DEPARTMENT, TRUNCATE(SUM(nt.salary),2) BUDGET FROM (SELECT rl.title ROLE, SUM(rl.salary) SALARY, rl.department_id FROM employees em INNER JOIN ROLES rl ON em.role_id = rl.id GROUP BY rl.id) nt INNER JOIN departments dp ON nt.department_id = dp.id GROUP BY dp.id;'
-      db.query(sql, function (err, results) {
-          console.table(results);
+      return new Promise((resolve, reject)=>{
+        db.query('SELECT dp.name DEPARTMENT, TRUNCATE(SUM(nt.salary),2) BUDGET FROM (SELECT rl.title ROLE, SUM(rl.salary) SALARY, rl.department_id FROM employees em INNER JOIN ROLES rl ON em.role_id = rl.id GROUP BY rl.id) nt INNER JOIN departments dp ON nt.department_id = dp.id GROUP BY dp.id;',  (error, elements)=>{
+            if(error){
+                return reject(error);
+            }
+            console.table(elements);
+            return resolve(elements);
+
+        });
+      });
+    }
+
+    getEmployeeByDepartment(department){
+      return new Promise((resolve, reject)=>{
+        db.query('SELECT CONCAT(nt.firstName, " ", nt.lastName) NAME, nt.ROLE FROM (SELECT em.firstName,  em.lastName, rl.title ROLE, rl.department_id FROM roles rl INNER JOIN employees em ON em.role_id = rl.id) nt INNER JOIN DEPARTMENTS dp ON nt.department_id = dp.id WHERE dp.name = ?;', department.department, (error, elements)=>{
+            if(error){
+                return reject(error);
+            }
+            return resolve(elements);
+        });
+      });
+    }
+
+    getManagers(){
+      return new Promise((resolve, reject)=>{
+        db.query('SELECT CONCAT(mg.firstName, " ", mg.lastName) AS NAME FROM employees e INNER JOIN employees mg on mg.id = e.manager_id GROUP by mg.id;',  (error, elements)=>{
+            if(error){
+                return reject(error);
+            }
+            return resolve(elements);
+        });
+      });
+    }
+
+    getEmployeeByManager(mg){
+      return new Promise((resolve, reject)=>{
+        db.query('SELECT CONCAT(e.firstName, " ", e.lastName) AS EMPLOYEES FROM employees e INNER JOIN employees mg on mg.id = e.manager_id WHERE CONCAT(mg.firstName, " ", mg.lastName) = ?',mg.manager, (error, elements)=>{
+            if(error){
+                return reject(error);
+            }
+            return resolve(elements);
+        });
       });
     }
   }
+
+
+
+  
   
 
 module.exports = {
