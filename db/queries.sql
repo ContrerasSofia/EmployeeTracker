@@ -1,1 +1,0 @@
-SELECT rl.title NAME FROM ROLES rl GROUP BY rl.id
