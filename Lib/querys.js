@@ -179,9 +179,39 @@ class Delete {
 
 }
 
-class update{
-  employeeManager(employee, manager){
-    console.log(employee,manager);
+class Update{
+  update(sql, value){
+    return new Promise((resolve, reject) => {
+      db.query(sql, value, (error, elements)=>{
+        if(error){
+            return reject(error);
+        }
+        console.log("The employee has been update!")
+        return resolve(elements);
+      });
+    }) 
+  }
+
+  updateEmployeeManager(employeeName, managerName){
+    const sql = 'UPDATE EMPLOYEES e SET e.manager_id = ? WHERE CONCAT(e.firstName, " ", e.lastName) = ?;';
+    return new Promise((resolve, reject) => {
+      Promise.resolve( v.getManagerid(managerName.manager))
+        .then((response1) => {
+          Promise.resolve(this.update(sql, [response1[0].id, employeeName.employee]))
+            .then((response) => {return resolve(response)})
+        })
+    })
+  }
+
+  updateEmployeeRole(employeeName, roleName){
+    const sql = 'UPDATE EMPLOYEES e SET e.role_id = ? WHERE CONCAT(e.firstName, " ", e.lastName) = ?;';
+    return new Promise((resolve, reject) => {
+      Promise.resolve( v.getRoleid(roleName.role))
+        .then((response1) => {
+          Promise.resolve(this.update(sql, [response1[0].id, employeeName.employee]))
+            .then((response) => {return resolve(response)})
+        })
+    })
   }
 }  
 
@@ -237,5 +267,5 @@ class Insert{
   insertDepartment(){}
 }
 module.exports = {
-    View, Delete, Insert
+    View, Delete, Insert, Update
 };

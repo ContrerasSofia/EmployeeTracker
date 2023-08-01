@@ -21,7 +21,7 @@ function init() {
                     deleteMenu();
                     break;
                 case'Update':
-                    //updateMenu();
+                    updateMenu()
                     break;
                 case'Add':
                     addMenu();
@@ -198,9 +198,6 @@ function deleteMenu(){
         })
 }
 
-
-
-
 function addMenu(){
     inquirer
     .prompt(ques.questions[2])
@@ -252,6 +249,62 @@ function addMenu(){
                     break;
             }
         })
+}
+
+function updateMenu(){
+    const updte = new query.Update;
+    inquirer
+    .prompt(ques.questions[3])
+        .then((response) => { 
+            switch (response.update) {
+                case 'Employee manager':
+                    Promise.resolve(view.getEmployees()).then((value) =>{
+                        Promise.resolve(opt.getOptions(value, 'employee')).then((question) =>{
+                            inquirer
+                                .prompt(question)
+                                .then((employee) => { 
+                                    Promise.resolve(view.getManagers()).then((value) =>{
+                                        Promise.resolve(opt.getOptions(value, 'manager')).then((question) =>{
+                                            inquirer
+                                                .prompt(question)
+                                                .then((manager) => { 
+                                                    Promise.resolve(updte.updateEmployeeManager(employee, manager))
+                                                    .then(() => init())
+                                                });
+                                            });
+                                    }); 
+                                });
+                            });
+                    }); 
+                    break;
+                case 'Employee role':
+                    Promise.resolve(view.getEmployees()).then((value) =>{
+                        Promise.resolve(opt.getOptions(value, 'employee')).then((question) =>{
+                            inquirer
+                                .prompt(question)
+                                .then((employee) => { 
+                                    Promise.resolve(view.getRoles()).then((value) =>{
+                                        Promise.resolve(opt.getOptions(value, 'role')).then((question) =>{
+                                            inquirer
+                                                .prompt(question)
+                                                .then((role) => { 
+                                                    Promise.resolve(updte.updateEmployeeRole(employee, role))
+                                                    .then(() => init())
+                                                });
+                                            });
+                                    }); 
+                                });
+                            });
+                    }); 
+                    break;
+                case'Quit':
+                    console.log('bye');
+                    break;
+                default:
+                    init();
+                    break;
+            }
+        }) 
 }
 
 module.exports = {
